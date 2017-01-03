@@ -7,6 +7,16 @@ var friendList = [];
 
 app.init = () => {
   var rooms = app.getRooms();
+  $('#roomSelect').on('change', event => {
+    // console.log('whatever');
+    console.log(event);
+    app.clearMessages();
+    var room = $('#roomSelect option:selected').text();
+    app.fetch(room);
+  });
+
+  app.$send = $('#send');
+  app.$send.on('submit', app.handleSubmit);
 };
 
 app.server = 'https://api.parse.com/1/classes/messages';
@@ -49,15 +59,6 @@ app.fetch = (room) => {
   });
 };
 //
-app.generateMessage = () => {
-  var text = document.getElementById('messageText').value;
-  var message = {
-    'username': username,
-    'text': text,
-    'roomname': 'lobby'
-  };
-  return message;
-};
 
 
 app.renderMessage = item => {
@@ -79,7 +80,16 @@ app.handleUsernameClick = (username) => {
 };
 
 
-
+app.handleSubmit = (event) => {
+  var text = document.getElementById('message').value;
+  var message = {
+    'username': username,
+    'text': text,
+    'roomname': 'lobby'
+  };
+  app.send(message);
+  event.preventDefault();
+};
 
 app.send = (msg) => {
 
@@ -133,16 +143,6 @@ app.renderRoom = room => {
 window.onload = function() {
   username = window.location.search.slice(10);
   app.init();
-
-  $('#roomSelect').on('change', event => {
-    // console.log('whatever');
-    console.log(event);
-    app.clearMessages();
-    var room = $('#roomSelect option:selected').text();
-    app.fetch(room);
-  });
-
-  
   
   // setTimeout(app.clearMessages, 1000);
 };
