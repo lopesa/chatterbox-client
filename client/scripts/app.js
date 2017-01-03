@@ -9,10 +9,11 @@ app.fetch = () => {
   $.ajax({
     method: 'GET',
     url: 'https://api.parse.com/1/classes/messages',
+    data: 'order=-updatedAt',
     success: (function( msg ) {
-    // console.log(msg);
+      console.log(msg);
       msg.results.forEach(item => {
-        $('#chats').append('<p>' + item.username + ': ' + item.text + '<p>');
+        $('#chats').append('<p>' + item.createdAt.slice(0, 19) + ' ' + item.username + ': ' + item.text + '<p>');
       });
     })
   });
@@ -20,27 +21,28 @@ app.fetch = () => {
 
 app.fetch();
 
-$('#msg').submit(function(event) {
-  event.preventDefault();
-  console.log('message');
-});
+// $('#msg').submit(function(event) {
+//   event.preventDefault();
+//   console.log('message');
+// });
 
 app.send = (event) => {
+  event.preventDefault();
   console.log(event);
 
   var message = document.getElementById('messageText').value;
-  
+  console.log(username + ' ' + message);
   $.ajax({
     method: 'POST',
-    url: 'https://api.parse.com/1/classes', 
-    data: {
-      username: username,
-      text: message,
-      roomname: 'lobby'
-    }
+    url: 'https://api.parse.com/1/classes/messages',
+    data: JSON.stringify({
+      'username': username,
+      'text': message,
+      'roomname': 'lobby'
+    })
   })
     .done(function(msg) {
-      alert('Data Saved');
+      console.log('Data Saved');
     });
 
 
