@@ -28,10 +28,15 @@
       <h1>chatterbox</h1>
       <!-- Your HTML goes here! -->
     </div>
-    <div id="chats"></div>
+    
+    <form id="chatRooms">
+      <select name="room" id="room"></select>
+    </form>
+
     <form id="msg" onsubmit = "return app.send(app.generateMessage())">
       <input type="text" id="messageText" name="newmsg">
       <input type="submit" value="SEND">
     </form>
+    <div id="chats"></div>
   </body>
 </html>

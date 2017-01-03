@@ -3,7 +3,8 @@ var app = {};
 
 app.init = () => {
   app.fetch();
-  app.getRooms();
+  var rooms = app.getRooms();
+  // app.setRooms(rooms);
 };
 
 app.server = 'https://api.parse.com/1/classes/messages';
@@ -77,18 +78,36 @@ app.send = (msg) => {
 };
 
 app.getRooms = () => {
+  var rooms;
+
   $.ajax({
     method: 'GET',
     url: app.server,
-    data: 'limit=1000',
+    data: 'limit=1000&keys=roomname',
     success: (function( msg ) {
 
-      console.log(typeof msg);
-      msg.results.forEach((item) => {
+      /*msg.results.forEach((item) => {
         console.log(item.roomname);
-      });
+      });*/
 
+      //console.log(msg.results);
+      rooms = _.uniq(_.map(msg.results, function(item) {
+        return item.roomname;
+      }));
+
+      app.setRooms(rooms);
+      //console.log(rooms);
     })
+  });
+  return rooms;
+};
+
+app.setRooms = rooms => {
+  console.log('rooms', rooms);
+  rooms.forEach(item => {
+    if (item !== undefined) {
+      $('#room').append('<option>' + item + '</option>');
+    }
   });
 };
 
