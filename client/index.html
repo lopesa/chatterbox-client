@@ -26,17 +26,15 @@
   <body>
     <div id="main">
       <h1>chatterbox</h1>
-      <!-- Your HTML goes here! -->
-    </div>
-    
-    <form id="chatRooms">
-      <select name="room" id="room"></select>
-    </form>
+        <form id="chatRooms">
+          <select name="room" id="roomSelect"></select>
+        </form>
 
-    <form id="msg" onsubmit = "return app.send(app.generateMessage())">
-      <input type="text" id="messageText" name="newmsg">
-      <input type="submit" value="SEND">
-    </form>
+        <form id="message" onsubmit = "return app.send(app.generateMessage())">
+          <input type="text" id="messageText" name="newmsg">
+          <input type="submit" id="send" value="SEND">
+        </form>
+    </div>
     <div id="chats"></div>
   </body>
 </html>

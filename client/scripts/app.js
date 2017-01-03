@@ -1,10 +1,12 @@
 // YOUR CODE HERE:
+// debugger;
 var app = {};
 
+var username;
+var friendList = [];
+
 app.init = () => {
-  app.fetch();
   var rooms = app.getRooms();
-  // app.setRooms(rooms);
 };
 
 app.server = 'https://api.parse.com/1/classes/messages';
@@ -28,15 +30,20 @@ app.escapeHtml = string => {
 };
 
 
-app.fetch = () => {
+app.fetch = (room) => {
   $.ajax({
     method: 'GET',
     url: app.server,
     data: 'order=-updatedAt',
     success: (function( msg ) {
-      // console.log(msg);
-      msg.results.forEach(item => {
-        $('#chats').append('<p>' + item.createdAt.slice(0, 19) + ' ' + item.username + ': ' + app.escapeHtml(item.text) + '<p>');
+      
+      // instead of rendermessage here
+      // 
+      var roomMsg = _.filter(msg.results, function(item) {
+        return item.roomname === room;
+      });
+      roomMsg.forEach(item => {
+        app.renderMessage(item);
       });
     })
   });
@@ -53,27 +60,36 @@ app.generateMessage = () => {
 };
 
 
+app.renderMessage = item => {
+
+  $('#chats').append(`<p><button class=username>${item.username}</button>: ${app.escapeHtml(item.text)}</p>`);
+  $('.username').on('click', event =>{
+    // console.log(event);
+    app.handleUsernameClick($(event.target).text());
+    // console.log(event);
+  });
+
+};
+
+app.handleUsernameClick = (username) => {
+  if (friendList.indexOf(username) === -1) {
+    friendList.push(username);
+  }
+  console.log(friendList);
+};
 
 
 
-//
+
 app.send = (msg) => {
 
-  //event.preventDefault();
-  //console.log(event);
   var message = JSON.stringify(msg);
-  //message = document.getElementById('messageText') === null ? ' ' : document.getElementById('messageText').value;
-  //console.log(username + ' ' + message);
-
 
   $.ajax({
     type: 'POST',
     url: app.server,
     data: message
   });
-    // .done(function(msg) {
-    //   console.log('Data Saved');
-    // });
   return false;
 };
 
@@ -86,37 +102,47 @@ app.getRooms = () => {
     data: 'limit=1000&keys=roomname',
     success: (function( msg ) {
 
-      /*msg.results.forEach((item) => {
-        console.log(item.roomname);
-      });*/
-
-      //console.log(msg.results);
       rooms = _.uniq(_.map(msg.results, function(item) {
         return item.roomname;
       }));
 
-      app.setRooms(rooms);
-      //console.log(rooms);
+      rooms.forEach(room => {
+        app.renderRoom(room);
+      });
     })
   });
   return rooms;
 };
 
-app.setRooms = rooms => {
-  console.log('rooms', rooms);
-  rooms.forEach(item => {
-    if (item !== undefined) {
-      $('#room').append('<option>' + item + '</option>');
-    }
-  });
+app.clearMessages = () => {
+
+  $('#chats').empty();
+
 };
 
-// example from test of the method name we need to use
-// app.renderRoom('superLobby');
+app.renderRoom = room => {
+  if (room !== undefined) {
+    $('#roomSelect').append('<option>' + room + '</option>');
+  }
+};
 
-var username;
+
+
+
 
 window.onload = function() {
   username = window.location.search.slice(10);
   app.init();
+
+  $('#roomSelect').on('change', event => {
+    // console.log('whatever');
+    console.log(event);
+    app.clearMessages();
+    var room = $('#roomSelect option:selected').text();
+    app.fetch(room);
+  });
+
+  
+  
+  // setTimeout(app.clearMessages, 1000);
 };
