@@ -2,68 +2,102 @@
 var app = {};
 
 app.init = () => {
-
+  app.fetch();
+  app.getRooms();
 };
+
+app.server = 'https://api.parse.com/1/classes/messages';
+
+app.escapeHtml = string => {
+  // if no more escaping needed
+  // return string
+  if (string) {
+    if (!string.includes('<')) {
+      return string;
+    }
+
+    // look for the first instance to escape
+    var firstBracket = string.indexOf('<');
+    var nextBracket = string.indexOf('>');
+
+    string = string.slice(0, firstBracket) + string.slice(nextBracket + 1);
+
+    return app.escapeHtml(string);
+  }
+};
+
 
 app.fetch = () => {
   $.ajax({
     method: 'GET',
-    url: 'https://api.parse.com/1/classes/messages',
+    url: app.server,
     data: 'order=-updatedAt',
     success: (function( msg ) {
-      console.log(msg);
+      // console.log(msg);
       msg.results.forEach(item => {
-        $('#chats').append('<p>' + item.createdAt.slice(0, 19) + ' ' + item.username + ': ' + item.text + '<p>');
+        $('#chats').append('<p>' + item.createdAt.slice(0, 19) + ' ' + item.username + ': ' + app.escapeHtml(item.text) + '<p>');
       });
     })
   });
 };
+//
+app.generateMessage = () => {
+  var text = document.getElementById('messageText').value;
+  var message = {
+    'username': username,
+    'text': text,
+    'roomname': 'lobby'
+  };
+  return message;
+};
 
-app.fetch();
 
-// $('#msg').submit(function(event) {
-//   event.preventDefault();
-//   console.log('message');
-// });
 
-app.send = (event) => {
-  event.preventDefault();
-  console.log(event);
 
-  var message = document.getElementById('messageText').value;
-  console.log(username + ' ' + message);
+
+//
+app.send = (msg) => {
+
+  //event.preventDefault();
+  //console.log(event);
+  var message = JSON.stringify(msg);
+  //message = document.getElementById('messageText') === null ? ' ' : document.getElementById('messageText').value;
+  //console.log(username + ' ' + message);
+
+
   $.ajax({
-    method: 'POST',
-    url: 'https://api.parse.com/1/classes/messages',
-    data: JSON.stringify({
-      'username': username,
-      'text': message,
-      'roomname': 'lobby'
-    })
-  })
-    .done(function(msg) {
-      console.log('Data Saved');
-    });
+    type: 'POST',
+    url: app.server,
+    data: message
+  });
+    // .done(function(msg) {
+    //   console.log('Data Saved');
+    // });
+  return false;
+};
 
-
-  //fetch new message from form
-  // e.preventDefault();
-  // console.log($('#msg newmsg'));
-  // console.log(e);
-  // console.log('test');
-  /*
+app.getRooms = () => {
   $.ajax({
-    method: 'POST',
-    url: 'https://api.parse.com/1/classes',
+    method: 'GET',
+    url: app.server,
+    data: 'limit=1000',
     success: (function( msg ) {
-      console.log(msg);
+
+      console.log(typeof msg);
+      msg.results.forEach((item) => {
+        console.log(item.roomname);
+      });
+
     })
   });
-  */
 };
+
+// example from test of the method name we need to use
+// app.renderRoom('superLobby');
 
 var username;
 
 window.onload = function() {
   username = window.location.search.slice(10);
+  app.init();
 };
