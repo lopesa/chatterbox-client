@@ -3,7 +3,8 @@
   <head>
     <meta charset="utf-8">
     <title>chatterbox</title>
-    <link rel="stylesheet" href="styles/styles.css">
+    <!-- <link rel="stylesheet" href="styles/styles.css"> -->
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
 
     <!-- dependencies -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
@@ -24,17 +25,27 @@
     <script src="scripts/app.js"></script>
   </head>
   <body>
-    <div id="main">
-      <h1>chatterbox</h1>
-        <form id="chatRooms">
-          <select name="room" id="roomSelect"></select>
-        </form>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+          <div id="main">
+            <h1>chatterbox</h1>
+            <form id="chatRooms">
+              <select name="room" id="roomSelect">
+                <option>Select A Chatroom</option>
+              </select>
+            </form>
 
-        <form action="#" id="send">
-          <input type="text" id="message" name="newmsg">
-          <input type="submit" value="SEND">
-        </form>
+            <form action="#" id="send">
+              <input type="text" id="message" name="newmsg">
+              <input type="submit" value="SEND">
+            </form>
+          </div>
+          <div id="chats"></div>
+        </div>
+        <div class="col-md-2"></div>
+      </div>
     </div>
-    <div id="chats"></div>
   </body>
 </html>

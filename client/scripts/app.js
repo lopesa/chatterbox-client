@@ -7,6 +7,7 @@ var friendList = [];
 
 app.init = () => {
   var rooms = app.getRooms();
+  
   $('#roomSelect').on('change', event => {
     // console.log('whatever');
     console.log(event);
@@ -24,19 +25,33 @@ app.server = 'https://api.parse.com/1/classes/messages';
 app.escapeHtml = string => {
   // if no more escaping needed
   // return string
-  if (string) {
-    if (!string.includes('<')) {
-      return string;
-    }
+  
+  string = string.replace(/\//g, '');
+  
+  string = string.replace(/&/g, '');
+  string = string.replace(/</g, '');
+  string = string.replace(/>/g, '');
+  /*
+  //string.replace(/"/g, '');
+  //string.replace(/'/g, '');
+  string = string.replace(/"  "/g, '');
+  */
+  string = string.replace(/script/g, 'p');
 
-    // look for the first instance to escape
-    var firstBracket = string.indexOf('<');
-    var nextBracket = string.indexOf('>');
+  return string;
+  // if (string) { 
+  //   if (!string.includes('<')) {
+  //     return string;
+  //   }
 
-    string = string.slice(0, firstBracket) + string.slice(nextBracket + 1);
+  //   // look for the first instance to escape
+  //   var firstBracket = string.indexOf('<');
+  //   var nextBracket = string.indexOf('>');
 
-    return app.escapeHtml(string);
-  }
+  //   string = string.slice(0, firstBracket) + string.slice(nextBracket + 1);
+
+  //   return app.escapeHtml(string);
+  // }
 };
 
 
@@ -44,7 +59,7 @@ app.fetch = (room) => {
   $.ajax({
     method: 'GET',
     url: app.server,
-    data: 'order=-updatedAt',
+    data: 'limit=1000&order=-updatedAt',
     success: (function( msg ) {
       
       // instead of rendermessage here
@@ -52,6 +67,7 @@ app.fetch = (room) => {
       var roomMsg = _.filter(msg.results, function(item) {
         return item.roomname === room;
       });
+      console.log(roomMsg);
       roomMsg.forEach(item => {
         app.renderMessage(item);
       });
@@ -76,7 +92,6 @@ app.handleUsernameClick = (username) => {
   if (friendList.indexOf(username) === -1) {
     friendList.push(username);
   }
-  console.log(friendList);
 };
 
 
@@ -121,6 +136,8 @@ app.getRooms = () => {
       });
     })
   });
+
+
   return rooms;
 };
 
@@ -132,10 +149,29 @@ app.clearMessages = () => {
 
 app.renderRoom = room => {
   if (room !== undefined) {
+    room = app.escapeHtml(room);
     $('#roomSelect').append('<option>' + room + '</option>');
   }
 };
 
+
+// app.getScriptMessages = () => {
+//   $.ajax({
+//     method: 'GET',
+//     url: app.server,
+//     data: {limit=1000&keys=roomname},
+//     success: (function( msg ) {
+
+//       rooms = _.uniq(_.map(msg.results, function(item) {
+//         return item.roomname;
+//       }));
+
+//       rooms.forEach(room => {
+//         app.renderRoom(room);
+//       });
+//     })
+//   });
+// };
 
 
 
