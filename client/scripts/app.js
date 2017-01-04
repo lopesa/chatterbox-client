@@ -1,5 +1,4 @@
 // YOUR CODE HERE:
-// debugger;
 var app = {};
 
 var username;
@@ -9,7 +8,6 @@ app.init = () => {
   var rooms = app.getRooms();
   
   $('#roomSelect').on('change', event => {
-    // console.log('whatever');
     console.log(event);
     app.clearMessages();
     var room = $('#roomSelect option:selected').text();
@@ -23,35 +21,17 @@ app.init = () => {
 app.server = 'https://api.parse.com/1/classes/messages';
 
 app.escapeHtml = string => {
-  // if no more escaping needed
-  // return string
-  
-  string = string.replace(/\//g, '');
-  
-  string = string.replace(/&/g, '');
-  string = string.replace(/</g, '');
-  string = string.replace(/>/g, '');
-  /*
-  //string.replace(/"/g, '');
-  //string.replace(/'/g, '');
-  string = string.replace(/"  "/g, '');
-  */
-  string = string.replace(/script/g, 'p');
-
+  // escapes special characters
+  if (string) {
+    string = string.replace(/\//g, '');
+    string = string.replace(/&/g, '');
+    string = string.replace(/</g, '');
+    string = string.replace(/>/g, '');
+    string = string.replace(/script/g, 'p');
+  } else { 
+    string = '';
+  }
   return string;
-  // if (string) { 
-  //   if (!string.includes('<')) {
-  //     return string;
-  //   }
-
-  //   // look for the first instance to escape
-  //   var firstBracket = string.indexOf('<');
-  //   var nextBracket = string.indexOf('>');
-
-  //   string = string.slice(0, firstBracket) + string.slice(nextBracket + 1);
-
-  //   return app.escapeHtml(string);
-  // }
 };
 
 
@@ -61,9 +41,6 @@ app.fetch = (room) => {
     url: app.server,
     data: 'limit=1000&order=-updatedAt',
     success: (function( msg ) {
-      
-      // instead of rendermessage here
-      // 
       var roomMsg = _.filter(msg.results, function(item) {
         return item.roomname === room;
       });
@@ -74,24 +51,29 @@ app.fetch = (room) => {
     })
   });
 };
-//
 
 
 app.renderMessage = item => {
 
-  $('#chats').append(`<p><button class=username>${item.username}</button>: ${app.escapeHtml(item.text)}</p>`);
+  $('#chats').append(`<p><button class="username btn-default btn-xs" onclick=app.handleUsernameClick($(this))>${item.username}</button>: ${app.escapeHtml(item.text)}</p>`);
+  /*
   $('.username').on('click', event =>{
-    // console.log(event);
+    console.log(event);
     app.handleUsernameClick($(event.target).text());
-    // console.log(event);
   });
-
+  */
 };
 
-app.handleUsernameClick = (username) => {
-  if (friendList.indexOf(username) === -1) {
-    friendList.push(username);
+app.handleUsernameClick = (obj) => {
+  if (friendList.indexOf(obj.text()) === -1) {
+    friendList.push(obj.text());
   }
+  var id = obj.text();
+  var friendbuttons = $('button').filter(function () { 
+    return $(this).text() === id;
+  });
+  
+  $(friendbuttons).removeClass('btn btn-default').addClass('btn btn-primary');
 };
 
 
@@ -155,30 +137,8 @@ app.renderRoom = room => {
 };
 
 
-// app.getScriptMessages = () => {
-//   $.ajax({
-//     method: 'GET',
-//     url: app.server,
-//     data: {limit=1000&keys=roomname},
-//     success: (function( msg ) {
-
-//       rooms = _.uniq(_.map(msg.results, function(item) {
-//         return item.roomname;
-//       }));
-
-//       rooms.forEach(room => {
-//         app.renderRoom(room);
-//       });
-//     })
-//   });
-// };
-
-
-
 
 window.onload = function() {
   username = window.location.search.slice(10);
   app.init();
-  
-  // setTimeout(app.clearMessages, 1000);
 };
