@@ -9,13 +9,17 @@ app.init = () => {
   
   $('#roomSelect').on('change', event => {
     console.log(event);
-    app.clearMessages();
-    var room = $('#roomSelect option:selected').text();
-    app.fetch(room);
+    // app.clearMessages();
+    // var room = $('#roomSelect option:selected').text();
+    // app.fetch(room);
+    app.updateRoomMessages();
   });
 
   app.$send = $('#send');
   app.$send.on('submit', app.handleSubmit);
+
+  // start getting updates 
+  app.updateMessages();
 };
 
 app.server = 'https://api.parse.com/1/classes/messages';
@@ -34,6 +38,14 @@ app.escapeHtml = string => {
   return string;
 };
 
+app.updateRoomMessages = () => {
+  app.clearMessages();
+  var room = $('#roomSelect option:selected').text();
+  app.fetch(room);
+  console.log(friendList);
+  // app.changeUserColor();
+};
+
 
 app.fetch = (room) => {
   $.ajax({
@@ -44,10 +56,13 @@ app.fetch = (room) => {
       var roomMsg = _.filter(msg.results, function(item) {
         return item.roomname === room;
       });
-      console.log(roomMsg);
+      // console.log('success from app.fetch');
+      // console.log(roomMsg);
       roomMsg.forEach(item => {
         app.renderMessage(item);
       });
+
+      app.changeUserColor();
     })
   });
 };
@@ -65,14 +80,28 @@ app.renderMessage = item => {
 };
 
 app.handleUsernameClick = (obj) => {
+  // push new friuend into friends array
   if (friendList.indexOf(obj.text()) === -1) {
     friendList.push(obj.text());
   }
+
   var id = obj.text();
+
+  // var friendbuttons = $('button').filter(function () { 
+  //   return $(this).text() === id;
+  // });
+
+  // $(friendbuttons).removeClass('btn btn-default').addClass('btn btn-primary');
+
+  app.changeUserColor();
+};
+
+app.changeUserColor = () => {
+  console.log('changeUserColor');
   var friendbuttons = $('button').filter(function () { 
-    return $(this).text() === id;
+    return friendList.includes($(this).text());
   });
-  
+
   $(friendbuttons).removeClass('btn btn-default').addClass('btn btn-primary');
 };
 
@@ -134,6 +163,10 @@ app.renderRoom = room => {
     room = app.escapeHtml(room);
     $('#roomSelect').append('<option>' + room + '</option>');
   }
+};
+
+app.updateMessages = () => {
+  setInterval(app.updateRoomMessages, 10000);
 };
 
 
